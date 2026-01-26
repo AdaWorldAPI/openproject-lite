@@ -1,29 +1,17 @@
-# Root Dockerfile - builds from /ts subfolder
-FROM oven/bun:1 AS builder
+FROM oven/bun:1
 
 WORKDIR /app
 
-COPY ts/package.json ts/bun.lockb* ./
-RUN bun install --frozen-lockfile
+# Copy from ts subfolder
+COPY ts/package.json ./
+COPY ts/bun.lockb* ./
+RUN bun install
 
-COPY ts/ .
-
-# Production stage
-FROM oven/bun:1-slim
-
-WORKDIR /app
-
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/tsconfig.json ./
-COPY --from=builder /app/drizzle.config.ts ./
-
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 hono
-USER hono
+COPY ts/src ./src
+COPY ts/tsconfig.json ./
+COPY ts/drizzle.config.ts ./
 
 EXPOSE 3000
 ENV NODE_ENV=production
 
-CMD ["bun", "run", "start"]
+CMD ["bun", "run", "src/index.ts"]

@@ -5,6 +5,7 @@ import { prettyJSON } from "hono/pretty-json";
 import { serveStatic } from "hono/bun";
 import { sessionMiddleware } from "./middleware/auth";
 import { isMailConfigured } from "./services/mail";
+import { migrate } from "./db/migrate";
 import { seedAdmin } from "./db/seed";
 
 // Routes
@@ -14,12 +15,19 @@ import tasksRoutes from "./routes/tasks";
 import notificationsRoutes from "./routes/notifications";
 
 // ============================================
-// SEED ON STARTUP
+// MIGRATE & SEED ON STARTUP
 // ============================================
 
-seedAdmin().catch((err) => {
-  console.error("[seed] Failed to seed admin:", err);
-});
+async function init() {
+  try {
+    await migrate();
+    await seedAdmin();
+  } catch (err) {
+    console.error("[init] Startup error:", err);
+  }
+}
+
+init();
 
 // ============================================
 // APP SETUP

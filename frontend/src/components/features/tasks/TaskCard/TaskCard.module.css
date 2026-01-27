@@ -1,0 +1,56 @@
+.card {
+  padding: var(--space-md);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.top {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.assignee {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.assigneeName {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

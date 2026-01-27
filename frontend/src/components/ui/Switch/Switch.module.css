@@ -1,0 +1,59 @@
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-background);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.input:checked ~ .track {
+  background: var(--color-primary);
+}
+
+.input:checked ~ .track .thumb {
+  transform: translateX(16px);
+}
+
+.input:focus-visible ~ .track {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.input:disabled ~ .track {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.label {
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  user-select: none;
+}

@@ -1,0 +1,111 @@
+/* OpenProject-Lite Design Tokens — CSS Custom Properties */
+/* Source of truth: PIXEL_DETECTIVE extraction from OpenProject */
+
+:root {
+  /* ===== Colors — Semantic ===== */
+  --color-primary: #1A67A3;
+  --color-primary-hover: #155A8A;
+  --color-primary-active: #0F4D77;
+  --color-on-primary: #FFFFFF;
+
+  --color-success: #35C53F;
+  --color-success-hover: #2DB035;
+  --color-warning: #E8A846;
+  --color-warning-hover: #D4963A;
+  --color-danger: #C92A2A;
+  --color-danger-hover: #B02424;
+
+  --color-background: #FFFFFF;
+  --color-surface: #F8F9FA;
+  --color-surface-raised: #FFFFFF;
+  --color-border: #E7E7E7;
+  --color-border-focus: #1A67A3;
+
+  --color-text: #333333;
+  --color-text-muted: #878787;
+  --color-text-disabled: #AAAAAA;
+  --color-text-inverse: #FFFFFF;
+
+  /* ===== Spacing ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* ===== Typography ===== */
+  --font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ===== Shadows ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+  /* ===== Radii ===== */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* ===== Transitions ===== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* ===== Layout ===== */
+  --header-height: 56px;
+  --sidebar-width: 230px;
+  --sidebar-collapsed-width: 56px;
+  --split-view-width: 450px;
+
+  /* ===== Z-index ===== */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 400;
+  --z-tooltip: 500;
+  --z-notification: 600;
+}
+
+/* ===== Dark Theme ===== */
+[data-theme="dark"] {
+  --color-primary: #4A9FD4;
+  --color-primary-hover: #5DB0E0;
+  --color-primary-active: #3A8FC4;
+  --color-on-primary: #FFFFFF;
+
+  --color-success: #4BD955;
+  --color-warning: #F0B856;
+  --color-danger: #E04444;
+
+  --color-background: #1A1A1A;
+  --color-surface: #2A2A2A;
+  --color-surface-raised: #333333;
+  --color-border: #404040;
+  --color-border-focus: #4A9FD4;
+
+  --color-text: #E0E0E0;
+  --color-text-muted: #999999;
+  --color-text-disabled: #666666;
+  --color-text-inverse: #1A1A1A;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+}

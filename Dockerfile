@@ -14,9 +14,9 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Install backend dependencies
+# Install backend dependencies (need full deps for drizzle-kit)
 COPY ts/package.json ts/bun.lockb* ./
-RUN bun install --production
+RUN bun install
 
 # Copy backend source
 COPY ts/src ./src
@@ -26,7 +26,10 @@ COPY ts/drizzle.config.ts ./
 # Copy built frontend
 COPY --from=frontend-builder /app/frontend/dist ./public
 
+# Create startup script that runs migrations then starts server
+RUN echo '#!/bin/sh\nbun run db:push && bun run src/index.ts' > /app/start.sh && chmod +x /app/start.sh
+
 EXPOSE 3000
 ENV NODE_ENV=production
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["/app/start.sh"]

@@ -1,0 +1,32 @@
+.nav {
+  font-size: var(--font-size-sm);
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.current {
+  color: var(--color-text-muted);
+}
+
+.separator {
+  margin: 0 var(--space-xs);
+  color: var(--color-text-disabled);
+}

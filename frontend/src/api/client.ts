@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+// In production, API is same origin at /api
+// In development, can override with VITE_API_URL
+const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 async function request(method: string, path: string, body?: unknown): Promise<Response> {
   const opts: RequestInit = {

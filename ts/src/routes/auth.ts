@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { z } from "zod";
-import { login, register, logout } from "../services/auth";
+import { createUserSchema, loginSchema } from "../dto";
+import { errorToStatusCode } from "../lib/errors";
+import { authService } from "../container";
 import {
   setSessionCookie,
   clearSessionCookie,
@@ -9,48 +10,33 @@ import {
 
 const auth = new Hono();
 
-// ============================================
-// VALIDATION SCHEMAS
-// ============================================
-
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().min(1).max(100),
-});
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-
-// ============================================
-// ROUTES
-// ============================================
-
 // POST /auth/register
 auth.post("/register", async (c) => {
   const body = await c.req.json();
-  const parsed = registerSchema.safeParse(body);
+  const parsed = createUserSchema.safeParse(body);
 
   if (!parsed.success) {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  try {
-    const result = await register(parsed.data.email, parsed.data.password, parsed.data.name);
-    setSessionCookie(c, result.sessionId);
+  const result = await authService.register(
+    parsed.data.email,
+    parsed.data.password,
+    parsed.data.name
+  );
 
-    return c.json({
-      user: result.user,
-      message: "Registration successful",
-    });
-  } catch (error) {
-    if (error instanceof Error && error.message === "Email already registered") {
-      return c.json({ error: "Email already registered" }, 409);
-    }
-    throw error;
+  if (!result.ok) {
+    return c.json(
+      { error: result.error.message },
+      errorToStatusCode(result.error) as 409
+    );
   }
+
+  setSessionCookie(c, result.data.sessionId);
+  return c.json({
+    user: result.data.user,
+    message: "Registration successful",
+  });
 });
 
 // POST /auth/login
@@ -62,16 +48,18 @@ auth.post("/login", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  const result = await login(parsed.data.email, parsed.data.password);
+  const result = await authService.login(parsed.data.email, parsed.data.password);
 
-  if (!result) {
-    return c.json({ error: "Invalid email or password" }, 401);
+  if (!result.ok) {
+    return c.json(
+      { error: result.error.message },
+      errorToStatusCode(result.error) as 401
+    );
   }
 
-  setSessionCookie(c, result.sessionId);
-
+  setSessionCookie(c, result.data.sessionId);
   return c.json({
-    user: result.user,
+    user: result.data.user,
     message: "Login successful",
   });
 });
@@ -81,11 +69,10 @@ auth.post("/logout", requireAuth, async (c) => {
   const sessionId = c.get("sessionId");
 
   if (sessionId) {
-    await logout(sessionId);
+    await authService.logout(sessionId);
   }
 
   clearSessionCookie(c);
-
   return c.json({ message: "Logged out" });
 });
 

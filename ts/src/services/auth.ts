@@ -1,177 +1,114 @@
-import { db, users, sessions, type User } from "../db";
-import { eq } from "drizzle-orm";
+// RUST: impl AuthService for AuthServiceImpl
+// RUST: pub trait AuthService {
+// RUST:     fn login(&self, email: &str, password: &str) -> Result<AuthResultDTO, AppError>;
+// RUST:     fn register(&self, email: &str, password: &str, name: &str) -> Result<AuthResultDTO, AppError>;
+// RUST:     fn logout(&self, session_id: &str) -> Result<(), AppError>;
+// RUST:     fn validate_session(&self, session_id: &str) -> Result<Option<SessionUserDTO>, AppError>;
+// RUST: }
+
 import { nanoid } from "nanoid";
 import * as argon2 from "argon2";
-
-// ============================================
-// TYPES
-// ============================================
-
-export interface SessionUser {
-  id: string;
-  email: string;
-  name: string;
-}
-
-export interface AuthResult {
-  user: SessionUser;
-  sessionId: string;
-}
-
-// ============================================
-// PASSWORD HASHING
-// ============================================
-
-export async function hashPassword(password: string): Promise<string> {
-  return argon2.hash(password);
-}
-
-export async function verifyPassword(
-  hash: string,
-  password: string
-): Promise<boolean> {
-  return argon2.verify(hash, password);
-}
-
-// ============================================
-// USER MANAGEMENT
-// ============================================
-
-export async function createUser(
-  email: string,
-  password: string,
-  name: string
-): Promise<User> {
-  const passwordHash = await hashPassword(password);
-
-  const [user] = await db
-    .insert(users)
-    .values({
-      email: email.toLowerCase().trim(),
-      name: name.trim(),
-      passwordHash,
-    })
-    .returning();
-
-  return user;
-}
-
-export async function findUserByEmail(email: string): Promise<User | null> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, email.toLowerCase().trim()),
-  });
-  return user ?? null;
-}
-
-export async function findUserById(id: string): Promise<User | null> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, id),
-  });
-  return user ?? null;
-}
-
-// ============================================
-// SESSION MANAGEMENT
-// ============================================
+import { ok, err, type Result } from "../lib/result";
+import type { AppError } from "../lib/errors";
+import { conflictError, unauthorizedError } from "../lib/errors";
+import type { AuthResultDTO, SessionUserDTO } from "../dto";
+import type { UserRepository } from "../repositories/user.repository";
+import type { SessionRepository } from "../repositories/session.repository";
 
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-export async function createSession(userId: string): Promise<string> {
-  const sessionId = nanoid(32);
-  const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
-
-  await db.insert(sessions).values({
-    id: sessionId,
-    userId,
-    expiresAt,
-  });
-
-  return sessionId;
+export interface AuthService {
+  login(email: string, password: string): Promise<Result<AuthResultDTO, AppError>>;
+  register(email: string, password: string, name: string): Promise<Result<AuthResultDTO, AppError>>;
+  logout(sessionId: string): Promise<void>;
+  validateSession(sessionId: string): Promise<SessionUserDTO | null>;
 }
 
-export async function validateSession(
-  sessionId: string
-): Promise<SessionUser | null> {
-  const session = await db.query.sessions.findFirst({
-    where: eq(sessions.id, sessionId),
-    with: {
-      // This requires the relation to be set up
-    },
-  });
-
-  if (!session) return null;
-  if (new Date() > session.expiresAt) {
-    await deleteSession(sessionId);
-    return null;
+// RUST: pub struct AuthServiceImpl { user_repo: Arc<dyn UserRepository>, session_repo: Arc<dyn SessionRepository> }
+export function createAuthService(
+  userRepo: UserRepository,
+  sessionRepo: SessionRepository
+): AuthService {
+  // RUST: fn hash_password(password: &str) -> Result<String, AppError>
+  async function hashPassword(password: string): Promise<string> {
+    return argon2.hash(password);
   }
 
-  const user = await findUserById(session.userId);
-  if (!user || !user.isActive) return null;
-
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-  };
-}
-
-export async function deleteSession(sessionId: string): Promise<void> {
-  await db.delete(sessions).where(eq(sessions.id, sessionId));
-}
-
-export async function deleteAllUserSessions(userId: string): Promise<void> {
-  await db.delete(sessions).where(eq(sessions.userId, userId));
-}
-
-// ============================================
-// AUTH FLOWS
-// ============================================
-
-export async function login(
-  email: string,
-  password: string
-): Promise<AuthResult | null> {
-  const user = await findUserByEmail(email);
-  if (!user || !user.isActive) return null;
-
-  const validPassword = await verifyPassword(user.passwordHash, password);
-  if (!validPassword) return null;
-
-  const sessionId = await createSession(user.id);
-
-  return {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    },
-    sessionId,
-  };
-}
-
-export async function register(
-  email: string,
-  password: string,
-  name: string
-): Promise<AuthResult> {
-  const existing = await findUserByEmail(email);
-  if (existing) {
-    throw new Error("Email already registered");
+  // RUST: fn verify_password(hash: &str, password: &str) -> Result<bool, AppError>
+  async function verifyPassword(hash: string, password: string): Promise<boolean> {
+    return argon2.verify(hash, password);
   }
 
-  const user = await createUser(email, password, name);
-  const sessionId = await createSession(user.id);
+  // RUST: fn create_session(user_id: Uuid) -> Result<String, AppError>
+  async function createSession(userId: string): Promise<string> {
+    const sessionId = nanoid(32);
+    const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+    await sessionRepo.create(sessionId, userId, expiresAt);
+    return sessionId;
+  }
 
   return {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    },
-    sessionId,
-  };
-}
+    // RUST: fn login(&self, email: &str, password: &str) -> Result<AuthResultDTO, AppError>
+    async login(email, password) {
+      const userWithHash = await userRepo.findByEmailWithHash(email);
+      if (!userWithHash || !userWithHash.isActive) {
+        return err(unauthorizedError("Invalid email or password"));
+      }
 
-export async function logout(sessionId: string): Promise<void> {
-  await deleteSession(sessionId);
+      const validPassword = await verifyPassword(userWithHash.passwordHash, password);
+      if (!validPassword) {
+        return err(unauthorizedError("Invalid email or password"));
+      }
+
+      const sessionId = await createSession(userWithHash.id);
+
+      return ok({
+        user: {
+          id: userWithHash.id,
+          email: userWithHash.email,
+          name: userWithHash.name,
+        },
+        sessionId,
+      });
+    },
+
+    // RUST: fn register(&self, email: &str, password: &str, name: &str) -> Result<AuthResultDTO, AppError>
+    async register(email, password, name) {
+      const existing = await userRepo.findByEmail(email);
+      if (existing) {
+        return err(conflictError("Email already registered"));
+      }
+
+      const passwordHash = await hashPassword(password);
+      const user = await userRepo.create(email, passwordHash, name);
+      const sessionId = await createSession(user.id);
+
+      return ok({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        sessionId,
+      });
+    },
+
+    // RUST: fn logout(&self, session_id: &str) -> Result<(), AppError>
+    async logout(sessionId) {
+      await sessionRepo.delete(sessionId);
+    },
+
+    // RUST: fn validate_session(&self, session_id: &str) -> Result<Option<SessionUserDTO>, AppError>
+    async validateSession(sessionId) {
+      const session = await sessionRepo.findById(sessionId);
+      if (!session) return null;
+
+      if (new Date() > session.expiresAt) {
+        await sessionRepo.delete(sessionId);
+        return null;
+      }
+
+      return userRepo.findByIdSummary(session.userId);
+    },
+  };
 }

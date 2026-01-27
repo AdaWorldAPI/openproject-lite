@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { db, notifications } from "../db";
-import { eq, and, desc } from "drizzle-orm";
+import { errorToStatusCode } from "../lib/errors";
+import { notificationService } from "../container";
 import { requireAuth } from "../middleware/auth";
 
 const notificationsRouter = new Hono();
@@ -12,27 +12,16 @@ notificationsRouter.get("/", async (c) => {
   const user = c.get("user")!;
   const unreadOnly = c.req.query("unread") === "true";
 
-  const where = unreadOnly
-    ? and(eq(notifications.userId, user.id), eq(notifications.isRead, false))
-    : eq(notifications.userId, user.id);
+  const result = await notificationService.list(user, unreadOnly);
 
-  const userNotifications = await db.query.notifications.findMany({
-    where,
-    orderBy: desc(notifications.createdAt),
-    limit: 50,
-  });
+  if (!result.ok) {
+    return c.json(
+      { error: result.error.message },
+      errorToStatusCode(result.error) as 500
+    );
+  }
 
-  const unreadCount = await db.query.notifications.findMany({
-    where: and(
-      eq(notifications.userId, user.id),
-      eq(notifications.isRead, false)
-    ),
-  });
-
-  return c.json({
-    notifications: userNotifications,
-    unreadCount: unreadCount.length,
-  });
+  return c.json(result.data);
 });
 
 // PATCH /notifications/:id/read - Mark as read
@@ -40,15 +29,14 @@ notificationsRouter.patch("/:id/read", async (c) => {
   const user = c.get("user")!;
   const notificationId = c.req.param("id");
 
-  await db
-    .update(notifications)
-    .set({ isRead: true })
-    .where(
-      and(
-        eq(notifications.id, notificationId),
-        eq(notifications.userId, user.id)
-      )
+  const result = await notificationService.markAsRead(notificationId, user);
+
+  if (!result.ok) {
+    return c.json(
+      { error: result.error.message },
+      errorToStatusCode(result.error) as 500
     );
+  }
 
   return c.json({ message: "Marked as read" });
 });
@@ -57,12 +45,14 @@ notificationsRouter.patch("/:id/read", async (c) => {
 notificationsRouter.post("/read-all", async (c) => {
   const user = c.get("user")!;
 
-  await db
-    .update(notifications)
-    .set({ isRead: true })
-    .where(
-      and(eq(notifications.userId, user.id), eq(notifications.isRead, false))
+  const result = await notificationService.markAllAsRead(user);
+
+  if (!result.ok) {
+    return c.json(
+      { error: result.error.message },
+      errorToStatusCode(result.error) as 500
     );
+  }
 
   return c.json({ message: "All marked as read" });
 });

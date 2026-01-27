@@ -1,6 +1,7 @@
 import { Context, Next } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { validateSession, type SessionUser } from "../services/auth";
+import type { SessionUserDTO } from "../dto";
+import { authService } from "../container";
 
 // ============================================
 // TYPES
@@ -8,7 +9,7 @@ import { validateSession, type SessionUser } from "../services/auth";
 
 declare module "hono" {
   interface ContextVariableMap {
-    user: SessionUser | null;
+    user: SessionUserDTO | null;
     sessionId: string | null;
   }
 }
@@ -30,15 +31,11 @@ const COOKIE_OPTIONS = {
 // MIDDLEWARE
 // ============================================
 
-/**
- * Session middleware - attaches user to context if valid session exists
- * Does NOT require auth - use requireAuth for protected routes
- */
 export async function sessionMiddleware(c: Context, next: Next) {
   const sessionId = getCookie(c, SESSION_COOKIE);
 
   if (sessionId) {
-    const user = await validateSession(sessionId);
+    const user = await authService.validateSession(sessionId);
     c.set("user", user);
     c.set("sessionId", sessionId);
   } else {
@@ -49,9 +46,6 @@ export async function sessionMiddleware(c: Context, next: Next) {
   await next();
 }
 
-/**
- * Require authentication - returns 401 if not authenticated
- */
 export async function requireAuth(c: Context, next: Next) {
   const user = c.get("user");
 

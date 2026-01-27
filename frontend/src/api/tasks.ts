@@ -1,4 +1,5 @@
-import { api } from './client';
+import { api, parseError } from './client';
+import { halElements, halText, halEmbedded, isHalResource } from './hal';
 
 export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done' | 'cancelled';
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -43,21 +44,96 @@ export interface TaskDetail extends Task {
   comments: Comment[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseTask(hal: any): Task {
+  return {
+    id: hal.id,
+    projectId: hal.projectId,
+    // HAL uses "subject" (OpenProject convention), fallback to "title"
+    title: hal.subject ?? hal.title ?? '',
+    description: halText(hal.description),
+    status: hal.status ?? 'backlog',
+    priority: hal.priority ?? 'medium',
+    assigneeId: hal.assigneeId ?? null,
+    creatorId: hal.creatorId ?? '',
+    dueDate: hal.dueDate ?? null,
+    completedAt: hal.completedAt ?? null,
+    createdAt: hal.createdAt,
+    updatedAt: hal.updatedAt,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseTaskListItem(hal: any): TaskListItem {
+  const base = parseTask(hal);
+  // HAL embeds assignee and author as user resources
+  const assignee = hal._embedded?.assignee ?? hal.assignee;
+  const author = hal._embedded?.author ?? hal.creator;
+
+  return {
+    ...base,
+    assigneeName: assignee?.name ?? hal.assigneeName ?? null,
+    assigneeEmail: assignee?.email ?? hal.assigneeEmail ?? null,
+    creatorName: author?.name ?? hal.creatorName ?? '',
+    creatorEmail: author?.email ?? hal.creatorEmail ?? '',
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseComment(hal: any): Comment {
+  // HAL comment has comment: { format, raw, html } and _embedded.user
+  const user = hal._embedded?.user ?? hal.author ?? {};
+  return {
+    id: hal.id,
+    taskId: hal.taskId ?? hal._links?.workPackage?.href?.split('/').pop() ?? '',
+    authorId: user.id ?? hal.authorId ?? '',
+    authorName: user.name ?? hal.authorName ?? '',
+    authorEmail: user.email ?? hal.authorEmail ?? '',
+    content: halText(hal.comment) ?? hal.content ?? '',
+    createdAt: hal.createdAt,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseTaskDetail(hal: any): TaskDetail {
+  const base = parseTask(hal);
+  const assignee = hal._embedded?.assignee ?? hal.assignee;
+  const author = hal._embedded?.author ?? hal.creator;
+  const activities = halEmbedded<any[]>(hal, 'activities') ?? hal.comments ?? [];
+
+  return {
+    ...base,
+    assigneeName: assignee?.name ?? hal.assigneeName ?? null,
+    assigneeEmail: assignee?.email ?? hal.assigneeEmail ?? null,
+    creatorName: author?.name ?? hal.creatorName ?? '',
+    creatorEmail: author?.email ?? hal.creatorEmail ?? '',
+    comments: activities.map(parseComment),
+  };
+}
+
 export async function listTasks(projectId: string): Promise<TaskListItem[]> {
   const res = await api.get(`/tasks?projectId=${projectId}`);
   if (!res.ok) throw new Error('Failed to fetch tasks');
   const data = await res.json();
-  return data.tasks ?? [];
+
+  // HAL Collection format
+  if (data._type === 'Collection') {
+    return halElements<any>(data).map(parseTaskListItem);
+  }
+  // Legacy format fallback
+  return (data.tasks ?? []).map(parseTaskListItem);
 }
 
 export async function getTask(id: string): Promise<TaskDetail> {
   const res = await api.get(`/tasks/${id}`);
   if (!res.ok) throw new Error('Failed to fetch task');
   const data = await res.json();
+
+  if (isHalResource(data)) return parseTaskDetail(data);
   return data.task ?? data;
 }
 
-export async function createTask(data: {
+export async function createTask(input: {
   projectId: string;
   title: string;
   description?: string;
@@ -66,16 +142,15 @@ export async function createTask(data: {
   assigneeId?: string;
   dueDate?: string;
 }): Promise<Task> {
-  const res = await api.post('/tasks', data);
-  if (!res.ok) {
-    const body = await res.json();
-    throw new Error(body.error ?? 'Failed to create task');
-  }
-  const result = await res.json();
-  return result.task ?? result;
+  const res = await api.post('/tasks', input);
+  if (!res.ok) throw new Error(await parseError(res, 'Failed to create task'));
+  const data = await res.json();
+
+  if (isHalResource(data)) return parseTask(data);
+  return data.task ?? data;
 }
 
-export async function updateTask(id: string, data: Partial<{
+export async function updateTask(id: string, input: Partial<{
   title: string;
   description: string;
   status: TaskStatus;
@@ -83,13 +158,12 @@ export async function updateTask(id: string, data: Partial<{
   assigneeId: string | null;
   dueDate: string | null;
 }>): Promise<Task> {
-  const res = await api.patch(`/tasks/${id}`, data);
-  if (!res.ok) {
-    const body = await res.json();
-    throw new Error(body.error ?? 'Failed to update task');
-  }
-  const result = await res.json();
-  return result.task ?? result;
+  const res = await api.patch(`/tasks/${id}`, input);
+  if (!res.ok) throw new Error(await parseError(res, 'Failed to update task'));
+  const data = await res.json();
+
+  if (isHalResource(data)) return parseTask(data);
+  return data.task ?? data;
 }
 
 export async function deleteTask(id: string): Promise<void> {
@@ -99,10 +173,9 @@ export async function deleteTask(id: string): Promise<void> {
 
 export async function addComment(taskId: string, content: string): Promise<Comment> {
   const res = await api.post(`/tasks/${taskId}/comments`, { content });
-  if (!res.ok) {
-    const body = await res.json();
-    throw new Error(body.error ?? 'Failed to add comment');
-  }
-  const result = await res.json();
-  return result.comment ?? result;
+  if (!res.ok) throw new Error(await parseError(res, 'Failed to add comment'));
+  const data = await res.json();
+
+  if (isHalResource(data)) return parseComment(data);
+  return data.comment ?? data;
 }

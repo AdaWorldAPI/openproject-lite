@@ -1,13 +1,16 @@
 import { Hono } from "hono";
 import { errorToStatusCode } from "../lib/errors";
+import { halError } from "../lib/hal";
 import { notificationService } from "../container";
 import { requireAuth } from "../middleware/auth";
+import { representNotificationCollection } from "../hal";
 
 const notificationsRouter = new Hono();
 
 notificationsRouter.use("*", requireAuth);
 
 // GET /notifications - List user's notifications
+// RUST: fn list(actor: &SessionUserDTO, unread_only: bool) -> Result<HalCollection, HalError>
 notificationsRouter.get("/", async (c) => {
   const user = c.get("user")!;
   const unreadOnly = c.req.query("unread") === "true";
@@ -16,15 +19,18 @@ notificationsRouter.get("/", async (c) => {
 
   if (!result.ok) {
     return c.json(
-      { error: result.error.message },
-      errorToStatusCode(result.error) as 500
+      halError(result.error),
+      errorToStatusCode(result.error) as 500,
     );
   }
 
-  return c.json(result.data);
+  return c.json(
+    representNotificationCollection(result.data, "/api/v3/notifications"),
+  );
 });
 
 // PATCH /notifications/:id/read - Mark as read
+// RUST: fn mark_as_read(id: Uuid, actor: &SessionUserDTO) -> Result<(), HalError>
 notificationsRouter.patch("/:id/read", async (c) => {
   const user = c.get("user")!;
   const notificationId = c.req.param("id");
@@ -33,15 +39,16 @@ notificationsRouter.patch("/:id/read", async (c) => {
 
   if (!result.ok) {
     return c.json(
-      { error: result.error.message },
-      errorToStatusCode(result.error) as 500
+      halError(result.error),
+      errorToStatusCode(result.error) as 500,
     );
   }
 
-  return c.json({ message: "Marked as read" });
+  return c.body(null, 204);
 });
 
 // POST /notifications/read-all - Mark all as read
+// RUST: fn mark_all_as_read(actor: &SessionUserDTO) -> Result<(), HalError>
 notificationsRouter.post("/read-all", async (c) => {
   const user = c.get("user")!;
 
@@ -49,12 +56,12 @@ notificationsRouter.post("/read-all", async (c) => {
 
   if (!result.ok) {
     return c.json(
-      { error: result.error.message },
-      errorToStatusCode(result.error) as 500
+      halError(result.error),
+      errorToStatusCode(result.error) as 500,
     );
   }
 
-  return c.json({ message: "All marked as read" });
+  return c.body(null, 204);
 });
 
 export default notificationsRouter;

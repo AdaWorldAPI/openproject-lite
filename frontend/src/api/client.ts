@@ -20,3 +20,17 @@ export const api = {
   patch: (path: string, body: unknown) => request('PATCH', path, body),
   delete: (path: string) => request('DELETE', path),
 };
+
+/**
+ * Parse a HAL error response body into an error message string.
+ * Handles both HAL format { _type: "Error", message: "..." } and
+ * legacy format { error: "..." }.
+ */
+export async function parseError(res: Response, fallback: string): Promise<string> {
+  try {
+    const data = await res.json();
+    return data.message ?? data.error ?? fallback;
+  } catch {
+    return fallback;
+  }
+}

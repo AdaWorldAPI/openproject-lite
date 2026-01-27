@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Badge } from '../../../ui/Badge';
+
 import { Avatar } from '../../../ui/Avatar';
 import { Button } from '../../../ui/Button';
 import { Select, type SelectOption } from '../../../ui/Select';

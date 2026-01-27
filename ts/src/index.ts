@@ -5,12 +5,21 @@ import { prettyJSON } from "hono/pretty-json";
 import { serveStatic } from "hono/bun";
 import { sessionMiddleware } from "./middleware/auth";
 import { isMailConfigured } from "./services/mail";
+import { seedAdmin } from "./db/seed";
 
 // Routes
 import authRoutes from "./routes/auth";
 import projectsRoutes from "./routes/projects";
 import tasksRoutes from "./routes/tasks";
 import notificationsRoutes from "./routes/notifications";
+
+// ============================================
+// SEED ON STARTUP
+// ============================================
+
+seedAdmin().catch((err) => {
+  console.error("[seed] Failed to seed admin:", err);
+});
 
 // ============================================
 // APP SETUP

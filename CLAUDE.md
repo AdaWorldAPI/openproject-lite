@@ -4,6 +4,20 @@
 
 ---
 
+## 📚 REFERENCE REPOSITORY
+
+**OpenProject Fork (Rails):** https://github.com/AdaWorldAPI/openproject
+
+This is the source of truth for:
+- Database schema (`db/structure.sql`)
+- API response formats (`app/representers/`)
+- Business logic (`app/services/`, `app/contracts/`)
+- Authentication flow
+
+Always cross-reference when implementing features. The goal is **100% data compatibility** — same database, same API responses.
+
+---
+
 ## 🎯 THE VISION
 
 ```

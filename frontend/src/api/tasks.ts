@@ -46,13 +46,15 @@ export interface TaskDetail extends Task {
 export async function listTasks(projectId: string): Promise<TaskListItem[]> {
   const res = await api.get(`/tasks?projectId=${projectId}`);
   if (!res.ok) throw new Error('Failed to fetch tasks');
-  return res.json();
+  const data = await res.json();
+  return data.tasks ?? [];
 }
 
 export async function getTask(id: string): Promise<TaskDetail> {
   const res = await api.get(`/tasks/${id}`);
   if (!res.ok) throw new Error('Failed to fetch task');
-  return res.json();
+  const data = await res.json();
+  return data.task ?? data;
 }
 
 export async function createTask(data: {
@@ -69,7 +71,8 @@ export async function createTask(data: {
     const body = await res.json();
     throw new Error(body.error ?? 'Failed to create task');
   }
-  return res.json();
+  const result = await res.json();
+  return result.task ?? result;
 }
 
 export async function updateTask(id: string, data: Partial<{
@@ -85,7 +88,8 @@ export async function updateTask(id: string, data: Partial<{
     const body = await res.json();
     throw new Error(body.error ?? 'Failed to update task');
   }
-  return res.json();
+  const result = await res.json();
+  return result.task ?? result;
 }
 
 export async function deleteTask(id: string): Promise<void> {
@@ -99,5 +103,6 @@ export async function addComment(taskId: string, content: string): Promise<Comme
     const body = await res.json();
     throw new Error(body.error ?? 'Failed to add comment');
   }
-  return res.json();
+  const result = await res.json();
+  return result.comment ?? result;
 }

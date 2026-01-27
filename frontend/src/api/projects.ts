@@ -29,13 +29,15 @@ export interface ProjectMember {
 export async function listProjects(): Promise<ProjectWithRole[]> {
   const res = await api.get('/projects');
   if (!res.ok) throw new Error('Failed to fetch projects');
-  return res.json();
+  const data = await res.json();
+  return data.projects ?? [];
 }
 
 export async function getProject(id: string): Promise<ProjectDetail> {
   const res = await api.get(`/projects/${id}`);
   if (!res.ok) throw new Error('Failed to fetch project');
-  return res.json();
+  const data = await res.json();
+  return data.project ?? data;
 }
 
 export async function createProject(data: { name: string; description?: string }): Promise<Project> {
@@ -44,7 +46,8 @@ export async function createProject(data: { name: string; description?: string }
     const body = await res.json();
     throw new Error(body.error ?? 'Failed to create project');
   }
-  return res.json();
+  const result = await res.json();
+  return result.project ?? result;
 }
 
 export async function updateProject(id: string, data: { name?: string; description?: string }): Promise<Project> {
@@ -53,7 +56,8 @@ export async function updateProject(id: string, data: { name?: string; descripti
     const body = await res.json();
     throw new Error(body.error ?? 'Failed to update project');
   }
-  return res.json();
+  const result = await res.json();
+  return result.project ?? result;
 }
 
 export async function deleteProject(id: string): Promise<void> {

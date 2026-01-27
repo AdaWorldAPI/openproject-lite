@@ -11,10 +11,10 @@ import {
 import { relations } from "drizzle-orm";
 
 // ============================================
-// ENUMS
+// ENUMS (prefixed to avoid conflicts)
 // ============================================
 
-export const taskStatusEnum = pgEnum("task_status", [
+export const taskStatusEnum = pgEnum("op_lite_task_status", [
   "backlog",
   "todo",
   "in_progress",
@@ -23,14 +23,14 @@ export const taskStatusEnum = pgEnum("task_status", [
   "cancelled",
 ]);
 
-export const projectRoleEnum = pgEnum("project_role", [
+export const projectRoleEnum = pgEnum("op_lite_project_role", [
   "owner",
   "admin",
   "member",
   "viewer",
 ]);
 
-export const notificationTypeEnum = pgEnum("notification_type", [
+export const notificationTypeEnum = pgEnum("op_lite_notification_type", [
   "task_assigned",
   "task_updated",
   "comment_added",
@@ -42,18 +42,19 @@ export const notificationTypeEnum = pgEnum("notification_type", [
 // USERS
 // ============================================
 
-export const users = pgTable("users", {
+export const users = pgTable("op_lite_users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
   avatarUrl: text("avatar_url"),
   isActive: boolean("is_active").notNull().default(true),
+  isAdmin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable("op_lite_sessions", {
   id: text("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -65,7 +66,7 @@ export const sessions = pgTable("sessions", {
 // PROJECTS
 // ============================================
 
-export const projects = pgTable("projects", {
+export const projects = pgTable("op_lite_projects", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
@@ -80,7 +81,7 @@ export const projects = pgTable("projects", {
 });
 
 export const projectMembers = pgTable(
-  "project_members",
+  "op_lite_project_members",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     projectId: uuid("project_id")
@@ -92,17 +93,18 @@ export const projectMembers = pgTable(
     role: projectRoleEnum("role").notNull().default("member"),
     joinedAt: timestamp("joined_at").notNull().defaultNow(),
   },
-  (table) => ({
-    projectUserIdx: index("project_user_idx").on(table.projectId, table.userId),
-  })
+  (table) => [
+    index("op_lite_project_members_project_idx").on(table.projectId),
+    index("op_lite_project_members_user_idx").on(table.userId),
+  ]
 );
 
 // ============================================
-// TASKS
+// TASKS (Work Packages)
 // ============================================
 
 export const tasks = pgTable(
-  "tasks",
+  "op_lite_tasks",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     projectId: uuid("project_id")
@@ -111,7 +113,7 @@ export const tasks = pgTable(
     title: text("title").notNull(),
     description: text("description"),
     status: taskStatusEnum("status").notNull().default("backlog"),
-    priority: text("priority").$type<"low" | "medium" | "high" | "urgent">(),
+    priority: text("priority").notNull().default("medium"),
     assigneeId: uuid("assignee_id").references(() => users.id, {
       onDelete: "set null",
     }),
@@ -124,11 +126,11 @@ export const tasks = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    projectIdx: index("task_project_idx").on(table.projectId),
-    assigneeIdx: index("task_assignee_idx").on(table.assigneeId),
-    statusIdx: index("task_status_idx").on(table.status),
-  })
+  (table) => [
+    index("op_lite_tasks_project_idx").on(table.projectId),
+    index("op_lite_tasks_assignee_idx").on(table.assigneeId),
+    index("op_lite_tasks_status_idx").on(table.status),
+  ]
 );
 
 // ============================================
@@ -136,7 +138,7 @@ export const tasks = pgTable(
 // ============================================
 
 export const comments = pgTable(
-  "comments",
+  "op_lite_comments",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     taskId: uuid("task_id")
@@ -149,9 +151,7 @@ export const comments = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    taskIdx: index("comment_task_idx").on(table.taskId),
-  })
+  (table) => [index("op_lite_comments_task_idx").on(table.taskId)]
 );
 
 // ============================================
@@ -159,7 +159,7 @@ export const comments = pgTable(
 // ============================================
 
 export const notifications = pgTable(
-  "notifications",
+  "op_lite_notifications",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")
@@ -174,10 +174,10 @@ export const notifications = pgTable(
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => ({
-    userIdx: index("notification_user_idx").on(table.userId),
-    unreadIdx: index("notification_unread_idx").on(table.userId, table.isRead),
-  })
+  (table) => [
+    index("op_lite_notifications_user_idx").on(table.userId),
+    index("op_lite_notifications_unread_idx").on(table.userId, table.isRead),
+  ]
 );
 
 // ============================================
@@ -191,6 +191,10 @@ export const usersRelations = relations(users, ({ many }) => ({
   createdTasks: many(tasks, { relationName: "creator" }),
   comments: many(comments),
   notifications: many(notifications),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
 export const projectsRelations = relations(projects, ({ many }) => ({
@@ -228,14 +232,8 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
 }));
 
 export const commentsRelations = relations(comments, ({ one }) => ({
-  task: one(tasks, {
-    fields: [comments.taskId],
-    references: [tasks.id],
-  }),
-  author: one(users, {
-    fields: [comments.authorId],
-    references: [users.id],
-  }),
+  task: one(tasks, { fields: [comments.taskId], references: [tasks.id] }),
+  author: one(users, { fields: [comments.authorId], references: [users.id] }),
 }));
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({
@@ -244,19 +242,3 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     references: [users.id],
   }),
 }));
-
-// ============================================
-// TYPES (inferred from schema)
-// ============================================
-
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type Project = typeof projects.$inferSelect;
-export type NewProject = typeof projects.$inferInsert;
-export type Task = typeof tasks.$inferSelect;
-export type NewTask = typeof tasks.$inferInsert;
-export type Comment = typeof comments.$inferSelect;
-export type NewComment = typeof comments.$inferInsert;
-export type Notification = typeof notifications.$inferSelect;
-export type TaskStatus = (typeof taskStatusEnum.enumValues)[number];
-export type ProjectRole = (typeof projectRoleEnum.enumValues)[number];

@@ -1,0 +1,155 @@
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  height: 100%;
+  overflow: hidden;
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Board container */
+.board {
+  display: flex;
+  gap: var(--space-md);
+  flex: 1;
+  overflow-x: auto;
+  padding-bottom: var(--space-sm);
+}
+
+/* Column */
+.column {
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+  max-width: 300px;
+  flex: 1;
+  background: var(--color-background);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.column.columnDragOver {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-background));
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.columnCount {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.columnBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Card */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  cursor: grab;
+  transition: box-shadow var(--transition-fast), opacity var(--transition-fast),
+    transform var(--transition-fast);
+  user-select: none;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+
+.cardTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  line-height: 1.4;
+  margin-bottom: var(--space-xs);
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.dueDate {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.cardAssignee {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.assigneeName {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.emptyColumn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+/* Responsive: stack columns vertically on small screens */
+@media (max-width: 768px) {
+  .board {
+    flex-direction: column;
+  }
+  .column {
+    min-width: auto;
+    max-width: none;
+  }
+}

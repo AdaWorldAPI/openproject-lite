@@ -1,5 +1,5 @@
 import { api } from './client';
-import { halElements, halUnreadCount, isHalResource } from './hal';
+import { halElements, halUnreadCount } from './hal';
 
 export interface Notification {
   id: string;

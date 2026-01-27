@@ -1,6 +1,6 @@
 import { Button } from '../../../ui/Button';
 import { Select, type SelectOption } from '../../../ui/Select';
-import type { TaskStatus, TaskPriority } from '../../../../api/tasks';
+
 import styles from './TaskToolbar.module.css';
 
 interface TaskToolbarProps {

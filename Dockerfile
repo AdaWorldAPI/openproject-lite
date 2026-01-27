@@ -10,11 +10,11 @@ COPY frontend/ ./
 RUN bun run build
 
 # Stage 2: Backend + Static Files
-FROM oven/bun:1-slim
+FROM oven/bun:1
 
 WORKDIR /app
 
-# Install backend dependencies (need full deps for drizzle-kit)
+# Install backend dependencies
 COPY ts/package.json ts/bun.lockb* ./
 RUN bun install
 
@@ -26,10 +26,8 @@ COPY ts/drizzle.config.ts ./
 # Copy built frontend
 COPY --from=frontend-builder /app/frontend/dist ./public
 
-# Create startup script that runs migrations then starts server
-RUN echo '#!/bin/sh\nbun run db:push && bun run src/index.ts' > /app/start.sh && chmod +x /app/start.sh
-
 EXPOSE 3000
 ENV NODE_ENV=production
 
-CMD ["/app/start.sh"]
+# App runs migrations on startup via migrate.ts
+CMD ["bun", "run", "src/index.ts"]

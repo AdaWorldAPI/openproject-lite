@@ -645,3 +645,17 @@ async def run_feature_pipeline(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8080")))
+
+
+# ============================================
+# INTEGRATIONS (Notion, n8n, MS Graph, etc.)
+# ============================================
+
+try:
+    from integrations import router as integrations_router
+    app.include_router(integrations_router)
+except ImportError:
+    pass  # integrations.py not present
+
+# Add missing import for timedelta
+from datetime import timedelta

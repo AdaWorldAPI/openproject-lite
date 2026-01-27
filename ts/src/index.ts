@@ -100,8 +100,11 @@ app.onError((err, c) => {
   console.error("Unhandled error:", err);
   return c.json(
     {
-      error: "Internal server error",
-      message: process.env.NODE_ENV === "development" ? err.message : undefined,
+      _type: "Error",
+      errorIdentifier: "urn:openproject-org:api:v3:errors:InternalServerError",
+      message: process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal server error",
     },
     500
   );

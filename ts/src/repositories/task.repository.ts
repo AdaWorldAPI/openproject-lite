@@ -2,7 +2,7 @@
 
 import { db } from "../db";
 import { tasks, comments, projectMembers } from "../db/schema";
-import type { TaskStatus, NewTask } from "../db/schema";
+import type { TaskStatus } from "../lib/types";
 import { eq, and, desc } from "drizzle-orm";
 import type {
   TaskDTO,
@@ -181,7 +181,7 @@ function toTaskDTO(row: typeof tasks.$inferSelect): TaskDTO {
     title: row.title,
     description: row.description,
     status: row.status,
-    priority: row.priority,
+    priority: row.priority as TaskDTO["priority"],
     assigneeId: row.assigneeId,
     creatorId: row.creatorId,
     dueDate: row.dueDate,

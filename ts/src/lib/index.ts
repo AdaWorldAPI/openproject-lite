@@ -23,3 +23,16 @@ export {
   PROJECT_ROLE_VALUES,
   NOTIFICATION_TYPE_VALUES,
 } from "./types";
+export {
+  type HalLink,
+  type HalLinks,
+  type HalResource,
+  type HalCollection,
+  type HalError,
+  type Formattable,
+  halResource,
+  halCollection,
+  formattable,
+  halError,
+  halValidationError,
+} from "./hal";

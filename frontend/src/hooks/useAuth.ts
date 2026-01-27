@@ -1,10 +1,31 @@
 import { useState, useCallback, useEffect } from 'react';
-import { api } from '../api/client';
+import { api, parseError } from '../api/client';
 
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseUser(data: any): AuthUser | null {
+  // HAL format: { _type: "User", id, name, email, _links: {...} }
+  if (data._type === 'User') {
+    return { id: data.id, email: data.email, name: data.name };
+  }
+  // HAL anonymous: { _type: "Anonymous" }
+  if (data._type === 'Anonymous') {
+    return null;
+  }
+  // Legacy format: { user: { id, email, name } }
+  if (data.user) {
+    return data.user;
+  }
+  // Direct user object
+  if (data.id && data.email) {
+    return { id: data.id, email: data.email, name: data.name };
+  }
+  return null;
 }
 
 export function useAuth() {
@@ -16,7 +37,7 @@ export function useAuth() {
       const res = await api.get('/auth/me');
       if (res.ok) {
         const data = await res.json();
-        setUser(data.user ?? null);
+        setUser(parseUser(data));
       } else {
         setUser(null);
       }
@@ -34,23 +55,23 @@ export function useAuth() {
   const login = useCallback(async (email: string, password: string) => {
     const res = await api.post('/auth/login', { email, password });
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error ?? 'Login failed');
+      throw new Error(await parseError(res, 'Login failed'));
     }
     const data = await res.json();
-    setUser(data.user);
-    return data.user;
+    const parsed = parseUser(data);
+    setUser(parsed);
+    return parsed;
   }, []);
 
   const register = useCallback(async (email: string, password: string, name: string) => {
     const res = await api.post('/auth/register', { email, password, name });
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error ?? 'Registration failed');
+      throw new Error(await parseError(res, 'Registration failed'));
     }
     const data = await res.json();
-    setUser(data.user);
-    return data.user;
+    const parsed = parseUser(data);
+    setUser(parsed);
+    return parsed;
   }, []);
 
   const logout = useCallback(async () => {

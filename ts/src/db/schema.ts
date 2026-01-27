@@ -93,10 +93,10 @@ export const projectMembers = pgTable(
     role: projectRoleEnum("role").notNull().default("member"),
     joinedAt: timestamp("joined_at").notNull().defaultNow(),
   },
-  (table) => [
-    index("op_lite_project_members_project_idx").on(table.projectId),
-    index("op_lite_project_members_user_idx").on(table.userId),
-  ]
+  (table) => ({
+    projectIdx: index("op_lite_project_members_project_idx").on(table.projectId),
+    userIdx: index("op_lite_project_members_user_idx").on(table.userId),
+  })
 );
 
 // ============================================
@@ -126,11 +126,11 @@ export const tasks = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [
-    index("op_lite_tasks_project_idx").on(table.projectId),
-    index("op_lite_tasks_assignee_idx").on(table.assigneeId),
-    index("op_lite_tasks_status_idx").on(table.status),
-  ]
+  (table) => ({
+    projectIdx: index("op_lite_tasks_project_idx").on(table.projectId),
+    assigneeIdx: index("op_lite_tasks_assignee_idx").on(table.assigneeId),
+    statusIdx: index("op_lite_tasks_status_idx").on(table.status),
+  })
 );
 
 // ============================================
@@ -151,7 +151,9 @@ export const comments = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("op_lite_comments_task_idx").on(table.taskId)]
+  (table) => ({
+    taskIdx: index("op_lite_comments_task_idx").on(table.taskId),
+  })
 );
 
 // ============================================
@@ -174,10 +176,10 @@ export const notifications = pgTable(
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [
-    index("op_lite_notifications_user_idx").on(table.userId),
-    index("op_lite_notifications_unread_idx").on(table.userId, table.isRead),
-  ]
+  (table) => ({
+    userIdx: index("op_lite_notifications_user_idx").on(table.userId),
+    unreadIdx: index("op_lite_notifications_unread_idx").on(table.userId, table.isRead),
+  })
 );
 
 // ============================================

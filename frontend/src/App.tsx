@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams, Outlet } from 'react-router-dom';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { MainContent } from './components/layout/MainContent';
@@ -36,9 +36,9 @@ function AppShell() {
     async function fetchUnread() {
       try {
         const data = await listNotifications(true);
-        if (!cancelled) setUnreadCount(data.unreadCount);
+        if (!cancelled) setUnreadCount(data.unreadCount ?? 0);
       } catch {
-        // ignore
+        // ignore - user might not have notifications yet
       }
     }
     fetchUnread();
@@ -77,51 +77,19 @@ function AppShell() {
         unreadCount={unreadCount}
       />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <Routes>
-          <Route path="/projects/:projectId/*" element={<ProjectLayout collapsed={sidebarCollapsed} />} />
-          <Route path="*" element={<GlobalLayout collapsed={sidebarCollapsed} />} />
-        </Routes>
+        <Sidebar collapsed={sidebarCollapsed} />
+        <MainContent>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/projects" element={<DashboardPage />} />
+            <Route path="/projects/:projectId" element={<DashboardPage />} />
+            <Route path="/projects/:projectId/tasks" element={<TaskListPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/settings" element={<SettingsPage themeName={themeName} onToggleTheme={toggleTheme} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </MainContent>
       </div>
-    </>
-  );
-}
-
-function GlobalLayout({ collapsed }: { collapsed: boolean }) {
-  const { themeName, setThemeName } = useTheme();
-  const toggleTheme = useCallback(() => {
-    setThemeName(themeName === 'dark' ? 'light' : 'dark');
-  }, [themeName, setThemeName]);
-
-  return (
-    <>
-      <Sidebar collapsed={collapsed} />
-      <MainContent>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/projects" element={<DashboardPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/settings" element={<SettingsPage themeName={themeName} onToggleTheme={toggleTheme} />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </MainContent>
-    </>
-  );
-}
-
-function ProjectLayout({ collapsed }: { collapsed: boolean }) {
-  const { projectId } = useParams<{ projectId: string }>();
-  return (
-    <>
-      <Sidebar collapsed={collapsed} projectId={projectId} />
-      <MainContent>
-        <Routes>
-          <Route path="/" element={<div>Project overview (coming soon)</div>} />
-          <Route path="/tasks" element={<TaskListPage />} />
-          <Route path="/members" element={<div>Members (coming soon)</div>} />
-          <Route path="/settings" element={<div>Project settings (coming soon)</div>} />
-          <Route path="*" element={<Navigate to="." replace />} />
-        </Routes>
-      </MainContent>
     </>
   );
 }

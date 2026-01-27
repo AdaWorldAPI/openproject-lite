@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
+import { serveStatic } from "hono/bun";
 import { sessionMiddleware } from "./middleware/auth";
 import { isMailConfigured } from "./services/mail";
 
@@ -21,19 +22,27 @@ const app = new Hono();
 app.use("*", logger());
 app.use("*", prettyJSON());
 app.use(
-  "*",
+  "/api/*",
   cors({
     origin: process.env.CORS_ORIGIN ?? "*",
     credentials: true,
   })
 );
-app.use("*", sessionMiddleware);
 
 // ============================================
-// ROUTES
+// API ROUTES (under /api prefix)
 // ============================================
 
 // Health check
+app.get("/api/health", (c) => {
+  return c.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    mail: isMailConfigured() ? "configured" : "not configured",
+  });
+});
+
+// Also keep /health for Railway healthcheck
 app.get("/health", (c) => {
   return c.json({
     status: "ok",
@@ -42,18 +51,34 @@ app.get("/health", (c) => {
   });
 });
 
-// API routes
-app.route("/auth", authRoutes);
-app.route("/projects", projectsRoutes);
-app.route("/tasks", tasksRoutes);
-app.route("/notifications", notificationsRoutes);
+// API routes with session middleware
+const api = new Hono();
+api.use("*", sessionMiddleware);
+api.route("/auth", authRoutes);
+api.route("/projects", projectsRoutes);
+api.route("/tasks", tasksRoutes);
+api.route("/notifications", notificationsRoutes);
 
-// 404 handler
-app.notFound((c) => {
-  return c.json({ error: "Not found" }, 404);
-});
+app.route("/api", api);
 
-// Error handler
+// ============================================
+// STATIC FILES (Frontend SPA)
+// ============================================
+
+// Serve static assets from /public
+app.use("/assets/*", serveStatic({ root: "./public" }));
+
+// Serve other static files (favicon, etc.)
+app.use("/favicon.ico", serveStatic({ path: "./public/favicon.ico" }));
+app.use("/favicon.svg", serveStatic({ path: "./public/favicon.svg" }));
+
+// SPA fallback: serve index.html for all non-API routes
+app.get("*", serveStatic({ path: "./public/index.html" }));
+
+// ============================================
+// ERROR HANDLERS
+// ============================================
+
 app.onError((err, c) => {
   console.error("Unhandled error:", err);
   return c.json(
@@ -73,10 +98,12 @@ const port = parseInt(process.env.PORT ?? "3000", 10);
 
 console.log(`
 ╔═══════════════════════════════════════════════╗
-║         OpenProject-Lite (TypeScript)         ║
+║         OpenProject-Lite                       ║
 ╠═══════════════════════════════════════════════╣
 ║  Server:     http://localhost:${port.toString().padEnd(5)}          ║
+║  API:        http://localhost:${port}/api          ║
 ║  Health:     http://localhost:${port}/health       ║
+║  Frontend:   http://localhost:${port}/            ║
 ║  Mail:       ${(isMailConfigured() ? "✓ Configured" : "✗ Not configured").padEnd(20)}       ║
 ╚═══════════════════════════════════════════════╝
 `);

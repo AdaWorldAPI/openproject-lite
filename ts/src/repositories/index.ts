@@ -17,3 +17,7 @@ export {
   type ReferenceDataRepository,
   createReferenceDataRepository,
 } from "./reference-data.repository";
+export {
+  type WorkPackageExtendedRepository,
+  createWorkPackageExtendedRepository,
+} from "./work-package-extended.repository";

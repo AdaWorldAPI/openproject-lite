@@ -8,6 +8,7 @@ import {
   createTaskRepository,
   createNotificationRepository,
   createReferenceDataRepository,
+  createWorkPackageExtendedRepository,
 } from "./repositories";
 
 import { createAuthService } from "./services/auth";
@@ -31,3 +32,7 @@ export const notificationService = createNotificationService(notificationRepo);
 
 // Reference data (read-only) — exposed directly as repository
 export const referenceDataRepository = referenceDataRepo;
+
+// Work package extended (relations, watchers, activities)
+const workPackageExtendedRepo = createWorkPackageExtendedRepository();
+export const workPackageExtendedRepository = workPackageExtendedRepo;

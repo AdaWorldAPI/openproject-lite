@@ -57,3 +57,32 @@ export {
   type CreatePriorityDTO,
   type UpdatePriorityDTO,
 } from "./priority.dto";
+
+export {
+  type RelationDTO,
+  type CreateRelationDTO,
+  type UpdateRelationDTO,
+  type RelationType,
+  RELATION_TYPES,
+  createRelationSchema,
+  updateRelationSchema,
+} from "./relation.dto";
+
+export {
+  type WatcherDTO,
+  type CreateWatcherDTO,
+  type WatchableType,
+  WATCHABLE_TYPES,
+  createWatcherSchema,
+  addWatcherSchema,
+} from "./watcher.dto";
+
+export {
+  type JournalDTO,
+  type JournalChangeDTO,
+  type CreateJournalDTO,
+  type JournableType,
+  JOURNABLE_TYPES,
+  createJournalSchema,
+  addCommentSchema,
+} from "./journal.dto";

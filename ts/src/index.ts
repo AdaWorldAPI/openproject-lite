@@ -14,6 +14,13 @@ import projectsRoutes from "./routes/projects";
 import tasksRoutes from "./routes/tasks";
 import notificationsRoutes from "./routes/notifications";
 import { typesRouter, statusesRouter, prioritiesRouter } from "./routes/reference-data";
+import {
+  activitiesRouter,
+  watchersRouter,
+  relationsRouter,
+  standaloneRelationsRouter,
+  standaloneActivitiesRouter,
+} from "./routes/work-package-extended";
 
 // ============================================
 // MIGRATE & SEED ON STARTUP
@@ -86,6 +93,19 @@ const v3 = new Hono();
 v3.route("/types", typesRouter);
 v3.route("/statuses", statusesRouter);
 v3.route("/priorities", prioritiesRouter);
+
+// Work package extended endpoints (require auth for mutations)
+// These are nested under work_packages/:workPackageId
+const v3WorkPackages = new Hono();
+v3WorkPackages.use("*", sessionMiddleware);
+v3WorkPackages.route("/:workPackageId/activities", activitiesRouter);
+v3WorkPackages.route("/:workPackageId/watchers", watchersRouter);
+v3WorkPackages.route("/:workPackageId/relations", relationsRouter);
+v3.route("/work_packages", v3WorkPackages);
+
+// Standalone relation and activity endpoints
+v3.route("/relations", standaloneRelationsRouter);
+v3.route("/activities", standaloneActivitiesRouter);
 
 app.route("/api/v3", v3);
 

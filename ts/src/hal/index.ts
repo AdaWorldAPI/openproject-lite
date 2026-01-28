@@ -36,3 +36,12 @@ export {
   representPriority,
   representPriorityCollection,
 } from "./reference-data.hal";
+
+export {
+  representRelation,
+  representRelationCollection,
+  representWatcher,
+  representWatcherCollection,
+  representActivity,
+  representActivityCollection,
+} from "./work-package-extended.hal";

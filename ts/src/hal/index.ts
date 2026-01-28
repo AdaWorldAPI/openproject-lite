@@ -27,3 +27,12 @@ export {
   representNotification,
   representNotificationCollection,
 } from "./notification.hal";
+
+export {
+  representType,
+  representTypeCollection,
+  representStatus,
+  representStatusCollection,
+  representPriority,
+  representPriorityCollection,
+} from "./reference-data.hal";

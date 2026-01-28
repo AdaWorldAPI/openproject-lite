@@ -6,13 +6,14 @@ import { serveStatic } from "hono/bun";
 import { sessionMiddleware } from "./middleware/auth";
 import { isMailConfigured } from "./services/mail";
 import { migrate } from "./db/migrate";
-import { seedAdmin } from "./db/seed";
+import { seedAdmin, seedReferenceData } from "./db/seed";
 
 // Routes
 import authRoutes from "./routes/auth";
 import projectsRoutes from "./routes/projects";
 import tasksRoutes from "./routes/tasks";
 import notificationsRoutes from "./routes/notifications";
+import { typesRouter, statusesRouter, prioritiesRouter } from "./routes/reference-data";
 
 // ============================================
 // MIGRATE & SEED ON STARTUP
@@ -22,6 +23,7 @@ async function init() {
   try {
     await migrate();
     await seedAdmin();
+    await seedReferenceData();
   } catch (err) {
     console.error("[init] Startup error:", err);
   }
@@ -77,6 +79,15 @@ api.route("/tasks", tasksRoutes);
 api.route("/notifications", notificationsRoutes);
 
 app.route("/api", api);
+
+// OpenProject API v3 routes (for parity)
+// Reference data endpoints don't require auth (read-only)
+const v3 = new Hono();
+v3.route("/types", typesRouter);
+v3.route("/statuses", statusesRouter);
+v3.route("/priorities", prioritiesRouter);
+
+app.route("/api/v3", v3);
 
 // ============================================
 // STATIC FILES (Frontend SPA)

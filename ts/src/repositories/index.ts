@@ -13,3 +13,7 @@ export {
   type NotificationRepository,
   createNotificationRepository,
 } from "./notification.repository";
+export {
+  type ReferenceDataRepository,
+  createReferenceDataRepository,
+} from "./reference-data.repository";

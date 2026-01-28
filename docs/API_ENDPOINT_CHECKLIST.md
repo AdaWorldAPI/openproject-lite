@@ -41,19 +41,19 @@
 | [x] | GET | `/api/v3/work_packages/:id` | Get |
 | [x] | PATCH | `/api/v3/work_packages/:id` | Update |
 | [x] | DELETE | `/api/v3/work_packages/:id` | Delete |
-| [ ] | GET | `/api/v3/work_packages/:id/activities` | Activities |
+| [x] | GET | `/api/v3/work_packages/:id/activities` | Activities |
 | [x] | POST | `/api/v3/work_packages/:id/activities` | Add comment |
 | [ ] | GET | `/api/v3/work_packages/:id/attachments` | Attachments |
 | [ ] | POST | `/api/v3/work_packages/:id/attachments` | Attach file |
 | [ ] | GET | `/api/v3/work_packages/:id/available_assignees` | Assignees |
 | [ ] | GET | `/api/v3/work_packages/:id/available_watchers` | Available watchers |
 | [ ] | GET | `/api/v3/work_packages/:id/available_relation_candidates` | Relation candidates |
-| [ ] | GET | `/api/v3/work_packages/:id/relations` | Relations |
-| [ ] | POST | `/api/v3/work_packages/:id/relations` | Create relation |
+| [x] | GET | `/api/v3/work_packages/:id/relations` | Relations |
+| [x] | POST | `/api/v3/work_packages/:id/relations` | Create relation |
 | [ ] | GET | `/api/v3/work_packages/:id/revisions` | Git revisions |
-| [ ] | GET | `/api/v3/work_packages/:id/watchers` | Watchers |
-| [ ] | POST | `/api/v3/work_packages/:id/watchers` | Add watcher |
-| [ ] | DELETE | `/api/v3/work_packages/:id/watchers/:user_id` | Remove watcher |
+| [x] | GET | `/api/v3/work_packages/:id/watchers` | Watchers |
+| [x] | POST | `/api/v3/work_packages/:id/watchers` | Add watcher |
+| [x] | DELETE | `/api/v3/work_packages/:id/watchers/:user_id` | Remove watcher |
 | [ ] | GET | `/api/v3/work_packages/form` | Create form |
 | [ ] | POST | `/api/v3/work_packages/:id/form` | Update form |
 | [ ] | GET | `/api/v3/work_packages/schemas` | Schemas |
@@ -207,9 +207,9 @@
 |--------|--------|----------|-------------|
 | [ ] | GET | `/api/v3/relations` | List relations |
 | [ ] | POST | `/api/v3/relations` | Create relation |
-| [ ] | GET | `/api/v3/relations/:id` | Get relation |
+| [x] | GET | `/api/v3/relations/:id` | Get relation |
 | [ ] | PATCH | `/api/v3/relations/:id` | Update relation |
-| [ ] | DELETE | `/api/v3/relations/:id` | Delete relation |
+| [x] | DELETE | `/api/v3/relations/:id` | Delete relation |
 
 ---
 
@@ -275,7 +275,7 @@
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
 | [ ] | GET | `/api/v3/activities` | List activities |
-| [ ] | GET | `/api/v3/activities/:id` | Get activity |
+| [x] | GET | `/api/v3/activities/:id` | Get activity |
 | [ ] | PATCH | `/api/v3/activities/:id` | Update comment |
 
 ---
@@ -481,19 +481,21 @@
 | Category | Implemented | Total | Percentage |
 |----------|-------------|-------|------------|
 | Auth | 4 | 7 | 57% |
-| Work Packages | 6 | 24 | 25% |
+| Work Packages | 13 | 24 | 54% |
 | Projects | 5 | 20 | 25% |
 | Users | 0 | 12 | 0% |
 | Groups | 0 | 5 | 0% |
 | Memberships | 3 | 11 | 27% |
 | Reference Data (Types, Statuses, Priorities) | 6 | 8 | 75% |
+| Relations | 2 | 5 | 40% |
+| Activities | 1 | 3 | 33% |
 | Queries | 0 | 13 | 0% |
 | Time Entries | 0 | 11 | 0% |
 | Attachments | 0 | 5 | 0% |
 | Notifications | 3 | 6 | 50% |
 | Content (Wiki, News, etc.) | 0 | 20+ | 0% |
 | Enterprise | 0 | 15+ | 0% |
-| **TOTAL** | **~27** | **~150+** | **~18%** |
+| **TOTAL** | **~37** | **~150+** | **~25%** |
 
 ---
 

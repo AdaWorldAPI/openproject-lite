@@ -157,8 +157,8 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/statuses` | List statuses |
-| [ ] | GET | `/api/v3/statuses/:id` | Get status |
+| [x] | GET | `/api/v3/statuses` | List statuses |
+| [x] | GET | `/api/v3/statuses/:id` | Get status |
 
 ---
 
@@ -166,8 +166,8 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/types` | List types |
-| [ ] | GET | `/api/v3/types/:id` | Get type |
+| [x] | GET | `/api/v3/types` | List types |
+| [x] | GET | `/api/v3/types/:id` | Get type |
 
 ---
 
@@ -175,8 +175,8 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/priorities` | List priorities |
-| [ ] | GET | `/api/v3/priorities/:id` | Get priority |
+| [x] | GET | `/api/v3/priorities` | List priorities |
+| [x] | GET | `/api/v3/priorities/:id` | Get priority |
 
 ---
 
@@ -486,14 +486,14 @@
 | Users | 0 | 12 | 0% |
 | Groups | 0 | 5 | 0% |
 | Memberships | 3 | 11 | 27% |
-| Reference Data | 0 | 14 | 0% |
+| Reference Data (Types, Statuses, Priorities) | 6 | 8 | 75% |
 | Queries | 0 | 13 | 0% |
 | Time Entries | 0 | 11 | 0% |
 | Attachments | 0 | 5 | 0% |
 | Notifications | 3 | 6 | 50% |
 | Content (Wiki, News, etc.) | 0 | 20+ | 0% |
 | Enterprise | 0 | 15+ | 0% |
-| **TOTAL** | **~21** | **~150+** | **~14%** |
+| **TOTAL** | **~27** | **~150+** | **~18%** |
 
 ---
 

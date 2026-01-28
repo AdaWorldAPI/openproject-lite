@@ -7,6 +7,7 @@ import {
   pgEnum,
   index,
   jsonb,
+  integer,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -37,6 +38,87 @@ export const notificationTypeEnum = pgEnum("op_lite_notification_type", [
   "mentioned",
   "project_invite",
 ]);
+
+// ============================================
+// REFERENCE DATA (Types, Statuses, Priorities)
+// ============================================
+
+export const types = pgTable("op_lite_types", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  color: text("color").default("#1A67A3"),
+  position: integer("position").notNull().default(0),
+  isDefault: boolean("is_default").notNull().default(false),
+  isMilestone: boolean("is_milestone").notNull().default(false),
+  isInRoadmap: boolean("is_in_roadmap").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const statuses = pgTable("op_lite_statuses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  color: text("color").default("#DEE2E6"),
+  position: integer("position").notNull().default(0),
+  isClosed: boolean("is_closed").notNull().default(false),
+  isDefault: boolean("is_default").notNull().default(false),
+  isReadonly: boolean("is_readonly").notNull().default(false),
+  defaultDoneRatio: integer("default_done_ratio"),
+  excludedFromTotals: boolean("excluded_from_totals").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const priorities = pgTable("op_lite_priorities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  color: text("color"),
+  position: integer("position").notNull().default(0),
+  isDefault: boolean("is_default").notNull().default(false),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const roles = pgTable("op_lite_roles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  position: integer("position").notNull().default(0),
+  permissions: jsonb("permissions").$type<string[]>().default([]),
+  assignable: boolean("assignable").notNull().default(true),
+  builtin: integer("builtin").notNull().default(0), // 0=normal, 1=non_member, 2=anonymous
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const workflows = pgTable(
+  "op_lite_workflows",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    typeId: uuid("type_id")
+      .notNull()
+      .references(() => types.id, { onDelete: "cascade" }),
+    oldStatusId: uuid("old_status_id")
+      .notNull()
+      .references(() => statuses.id, { onDelete: "cascade" }),
+    newStatusId: uuid("new_status_id")
+      .notNull()
+      .references(() => statuses.id, { onDelete: "cascade" }),
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+    author: boolean("author").notNull().default(false),
+    assignee: boolean("assignee").notNull().default(false),
+  },
+  (table) => ({
+    uniqueTransition: index("op_lite_workflows_unique_idx").on(
+      table.typeId,
+      table.oldStatusId,
+      table.newStatusId,
+      table.roleId
+    ),
+  })
+);
 
 // ============================================
 // USERS

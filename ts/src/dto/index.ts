@@ -39,3 +39,21 @@ export {
   type NotificationListDTO,
   type CreateNotificationDTO,
 } from "./notification.dto";
+
+export {
+  type TypeDTO,
+  type CreateTypeDTO,
+  type UpdateTypeDTO,
+} from "./type.dto";
+
+export {
+  type StatusDTO,
+  type CreateStatusDTO,
+  type UpdateStatusDTO,
+} from "./status.dto";
+
+export {
+  type PriorityDTO,
+  type CreatePriorityDTO,
+  type UpdatePriorityDTO,
+} from "./priority.dto";

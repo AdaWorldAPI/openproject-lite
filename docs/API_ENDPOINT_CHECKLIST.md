@@ -110,11 +110,14 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/groups` | List groups |
-| [ ] | POST | `/api/v3/groups` | Create group |
-| [ ] | GET | `/api/v3/groups/:id` | Get group |
-| [ ] | PATCH | `/api/v3/groups/:id` | Update group |
-| [ ] | DELETE | `/api/v3/groups/:id` | Delete group |
+| [x] | GET | `/api/v3/groups` | List groups |
+| [x] | POST | `/api/v3/groups` | Create group |
+| [x] | GET | `/api/v3/groups/:id` | Get group |
+| [x] | PATCH | `/api/v3/groups/:id` | Update group |
+| [x] | DELETE | `/api/v3/groups/:id` | Delete group |
+| [x] | GET | `/api/v3/groups/:id/members` | List group members |
+| [x] | POST | `/api/v3/groups/:id/members` | Add member to group |
+| [x] | DELETE | `/api/v3/groups/:id/members/:userId` | Remove member from group |
 
 ---
 
@@ -122,8 +125,8 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/principals` | List principals |
-| [ ] | GET | `/api/v3/principals/:id` | Get principal |
+| [x] | GET | `/api/v3/principals` | List principals |
+| [x] | GET | `/api/v3/principals/:id` | Get principal |
 
 ---
 
@@ -484,7 +487,8 @@
 | Work Packages | 13 | 24 | 54% |
 | Projects | 5 | 20 | 25% |
 | Users | 6 | 10 | 60% |
-| Groups | 0 | 5 | 0% |
+| Groups | 8 | 8 | 100% |
+| Principals | 2 | 2 | 100% |
 | Memberships | 3 | 11 | 27% |
 | Roles | 2 | 2 | 100% |
 | Reference Data (Types, Statuses, Priorities) | 6 | 8 | 75% |
@@ -497,7 +501,7 @@
 | Notifications | 3 | 6 | 50% |
 | Content (Wiki, News, etc.) | 0 | 20+ | 0% |
 | Enterprise | 0 | 15+ | 0% |
-| **TOTAL** | **~50** | **~150+** | **~33%** |
+| **TOTAL** | **~60** | **~150+** | **~40%** |
 
 ---
 

@@ -1,10 +1,11 @@
 import { z } from "zod";
 
-// RUST: pub struct SessionUserDTO { pub id: Uuid, pub email: String, pub name: String }
+// RUST: pub struct SessionUserDTO { pub id: Uuid, pub email: String, pub name: String, pub is_admin: bool }
 export interface SessionUserDTO {
   readonly id: string;
   readonly email: string;
   readonly name: string;
+  readonly isAdmin: boolean;
 }
 
 // RUST: pub struct UserDTO { pub id: Uuid, pub email: String, pub name: String, pub avatar_url: Option<String>, pub is_active: bool, pub created_at: NaiveDateTime, pub updated_at: NaiveDateTime }

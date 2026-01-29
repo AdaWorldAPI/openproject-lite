@@ -11,6 +11,7 @@ import {
   createWorkPackageExtendedRepository,
   createRoleRepository,
   createVersionRepository,
+  createGroupRepository,
 } from "./repositories";
 
 import { createAuthService } from "./services/auth";
@@ -49,3 +50,7 @@ export const roleRepository = roleRepo;
 // Version repository — exposed for /api/v3/versions endpoints
 const versionRepo = createVersionRepository();
 export const versionRepository = versionRepo;
+
+// Group repository — exposed for /api/v3/groups endpoints
+const groupRepo = createGroupRepository();
+export const groupRepository = groupRepo;

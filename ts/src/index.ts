@@ -24,6 +24,8 @@ import {
 import { usersRouter } from "./routes/users";
 import { rolesRouter } from "./routes/roles";
 import { versionsRouter } from "./routes/versions";
+import { groupsRouter } from "./routes/groups";
+import { principalsRouter } from "./routes/principals";
 
 // ============================================
 // MIGRATE & SEED ON STARTUP
@@ -124,6 +126,15 @@ const v3Versions = new Hono();
 v3Versions.use("*", sessionMiddleware);
 v3Versions.route("/", versionsRouter);
 v3.route("/versions", v3Versions);
+
+// Groups endpoints (require auth for mutations)
+const v3Groups = new Hono();
+v3Groups.use("*", sessionMiddleware);
+v3Groups.route("/", groupsRouter);
+v3.route("/groups", v3Groups);
+
+// Principals endpoints (read-only, unified Users/Groups)
+v3.route("/principals", principalsRouter);
 
 app.route("/api/v3", v3);
 

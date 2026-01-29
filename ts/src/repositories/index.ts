@@ -26,3 +26,7 @@ export {
   type VersionRepository,
   createVersionRepository,
 } from "./version.repository";
+export {
+  type GroupRepository,
+  createGroupRepository,
+} from "./group.repository";

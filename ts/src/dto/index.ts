@@ -109,3 +109,21 @@ export {
   createVersionSchema,
   updateVersionSchema,
 } from "./version.dto";
+
+export {
+  type GroupDTO,
+  type GroupMemberDTO,
+  type CreateGroupDTO,
+  type UpdateGroupDTO,
+  type AddGroupMemberDTO,
+  createGroupSchema,
+  updateGroupSchema,
+  addGroupMemberSchema,
+} from "./group.dto";
+
+export {
+  type PrincipalDTO,
+  type UserPrincipalDTO,
+  type GroupPrincipalDTO,
+  type ListPrincipalsOptions,
+} from "./principal.dto";

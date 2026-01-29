@@ -145,6 +145,34 @@ export const sessions = pgTable("op_lite_sessions", {
 });
 
 // ============================================
+// GROUPS
+// ============================================
+
+export const groups = pgTable("op_lite_groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const groupUsers = pgTable(
+  "op_lite_group_users",
+  {
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    pk: index("op_lite_group_users_pk").on(table.groupId, table.userId),
+    groupIdx: index("op_lite_group_users_group_idx").on(table.groupId),
+    userIdx: index("op_lite_group_users_user_idx").on(table.userId),
+  })
+);
+
+// ============================================
 // PROJECTS
 // ============================================
 
@@ -451,6 +479,7 @@ export const notifications = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   projectMemberships: many(projectMembers),
+  groupMemberships: many(groupUsers),
   assignedTasks: many(tasks, { relationName: "assignee" }),
   createdTasks: many(tasks, { relationName: "creator" }),
   comments: many(comments),
@@ -566,6 +595,21 @@ export const commentsRelations = relations(comments, ({ one }) => ({
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, {
     fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
+export const groupsRelations = relations(groups, ({ many }) => ({
+  members: many(groupUsers),
+}));
+
+export const groupUsersRelations = relations(groupUsers, ({ one }) => ({
+  group: one(groups, {
+    fields: [groupUsers.groupId],
+    references: [groups.id],
+  }),
+  user: one(users, {
+    fields: [groupUsers.userId],
     references: [users.id],
   }),
 }));

@@ -67,6 +67,7 @@ export function createAuthService(
           id: userWithHash.id,
           email: userWithHash.email,
           name: userWithHash.name,
+          isAdmin: userWithHash.isAdmin,
         },
         sessionId,
       });
@@ -88,6 +89,7 @@ export function createAuthService(
           id: user.id,
           email: user.email,
           name: user.name,
+          isAdmin: false, // New users are not admins by default
         },
         sessionId,
       });

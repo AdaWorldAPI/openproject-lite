@@ -22,6 +22,7 @@ interface UserWithHash {
   readonly name: string;
   readonly passwordHash: string;
   readonly isActive: boolean;
+  readonly isAdmin: boolean;
 }
 
 // Update input DTO
@@ -97,16 +98,17 @@ export function createUserRepository(): UserRepository {
         name: row.name,
         passwordHash: row.passwordHash,
         isActive: row.isActive,
+        isAdmin: row.isAdmin,
       };
     },
 
     async findByIdSummary(id) {
       const row = await db.query.users.findFirst({
         where: eq(users.id, id),
-        columns: { id: true, email: true, name: true, isActive: true },
+        columns: { id: true, email: true, name: true, isActive: true, isAdmin: true },
       });
       if (!row || !row.isActive) return null;
-      return { id: row.id, email: row.email, name: row.name };
+      return { id: row.id, email: row.email, name: row.name, isAdmin: row.isAdmin };
     },
 
     async list(options = {}) {

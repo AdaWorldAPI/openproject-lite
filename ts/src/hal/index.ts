@@ -58,3 +58,15 @@ export {
   representVersionCollection,
   representProjectVersions,
 } from "./version.hal";
+
+export {
+  representGroup,
+  representGroupMember,
+  representGroupCollection,
+  representGroupMembersCollection,
+} from "./group.hal";
+
+export {
+  representPrincipal,
+  representPrincipalCollection,
+} from "./principal.hal";

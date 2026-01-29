@@ -86,3 +86,26 @@ export {
   createJournalSchema,
   addCommentSchema,
 } from "./journal.dto";
+
+export {
+  type RoleDTO,
+  type CreateRoleDTO,
+  type UpdateRoleDTO,
+  type Permission,
+  PERMISSIONS,
+  ROLE_BUILTIN,
+  createRoleSchema,
+  updateRoleSchema,
+} from "./role.dto";
+
+export {
+  type VersionDTO,
+  type CreateVersionDTO,
+  type UpdateVersionDTO,
+  type VersionStatus,
+  type VersionSharing,
+  VERSION_STATUSES,
+  VERSION_SHARING,
+  createVersionSchema,
+  updateVersionSchema,
+} from "./version.dto";

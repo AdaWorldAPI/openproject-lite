@@ -353,6 +353,49 @@ export const journalChanges = pgTable(
 );
 
 // ============================================
+// VERSIONS (Project Milestones)
+// ============================================
+
+export const versionStatusEnum = pgEnum("op_lite_version_status", [
+  "open",
+  "locked",
+  "closed",
+]);
+
+export const versionSharingEnum = pgEnum("op_lite_version_sharing", [
+  "none",
+  "descendants",
+  "hierarchy",
+  "tree",
+  "system",
+]);
+
+export const versions = pgTable(
+  "op_lite_versions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    description: text("description"),
+    startDate: timestamp("start_date"),
+    effectiveDate: timestamp("effective_date"), // Target/due date
+    status: versionStatusEnum("status").notNull().default("open"),
+    sharing: versionSharingEnum("sharing").notNull().default("none"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    projectIdx: index("op_lite_versions_project_idx").on(table.projectId),
+    nameUniqueIdx: index("op_lite_versions_name_unique_idx").on(
+      table.projectId,
+      table.name
+    ),
+  })
+);
+
+// ============================================
 // COMMENTS
 // ============================================
 
@@ -421,6 +464,14 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const projectsRelations = relations(projects, ({ many }) => ({
   members: many(projectMembers),
   tasks: many(tasks),
+  versions: many(versions),
+}));
+
+export const versionsRelations = relations(versions, ({ one }) => ({
+  project: one(projects, {
+    fields: [versions.projectId],
+    references: [projects.id],
+  }),
 }));
 
 export const projectMembersRelations = relations(projectMembers, ({ one }) => ({

@@ -1,7 +1,7 @@
 // RUST: User HAL representer — maps UserDTO/UserSummaryDTO to OpenProject HAL format
 
-import type { HalResource } from "../lib/hal";
-import { halResource } from "../lib/hal";
+import type { HalResource, HalCollection } from "../lib/hal";
+import { halResource, halCollection } from "../lib/hal";
 import type { UserDTO, UserSummaryDTO, SessionUserDTO } from "../dto";
 
 const API_V3 = "/api/v3";
@@ -53,4 +53,15 @@ export function representSessionUser(user: SessionUserDTO): HalResource {
       email: user.email,
     },
   );
+}
+
+// RUST: fn represent_user_collection(users: &[UserDTO], total: i32, offset: i32, page_size: i32) -> HalCollection
+export function representUserCollection(
+  userList: readonly UserDTO[],
+  total: number,
+  pageSize: number = 20,
+  offset: number = 1
+): HalCollection {
+  const elements = userList.map(representUser);
+  return halCollection(`${API_V3}/users`, elements, total, pageSize, offset);
 }

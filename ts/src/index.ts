@@ -21,6 +21,9 @@ import {
   standaloneRelationsRouter,
   standaloneActivitiesRouter,
 } from "./routes/work-package-extended";
+import { usersRouter } from "./routes/users";
+import { rolesRouter } from "./routes/roles";
+import { versionsRouter } from "./routes/versions";
 
 // ============================================
 // MIGRATE & SEED ON STARTUP
@@ -106,6 +109,21 @@ v3.route("/work_packages", v3WorkPackages);
 // Standalone relation and activity endpoints
 v3.route("/relations", standaloneRelationsRouter);
 v3.route("/activities", standaloneActivitiesRouter);
+
+// Users endpoints (require auth for mutations)
+const v3Users = new Hono();
+v3Users.use("*", sessionMiddleware);
+v3Users.route("/", usersRouter);
+v3.route("/users", v3Users);
+
+// Roles endpoints (read-only, no auth required)
+v3.route("/roles", rolesRouter);
+
+// Versions endpoints (require auth for mutations)
+const v3Versions = new Hono();
+v3Versions.use("*", sessionMiddleware);
+v3Versions.route("/", versionsRouter);
+v3.route("/versions", v3Versions);
 
 app.route("/api/v3", v3);
 

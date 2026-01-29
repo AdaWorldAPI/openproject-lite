@@ -21,3 +21,8 @@ export {
   type WorkPackageExtendedRepository,
   createWorkPackageExtendedRepository,
 } from "./work-package-extended.repository";
+export { type RoleRepository, createRoleRepository } from "./role.repository";
+export {
+  type VersionRepository,
+  createVersionRepository,
+} from "./version.repository";

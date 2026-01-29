@@ -5,6 +5,7 @@ export {
   representUser,
   representUserSummary,
   representSessionUser,
+  representUserCollection,
 } from "./user.hal";
 
 export {
@@ -45,3 +46,15 @@ export {
   representActivity,
   representActivityCollection,
 } from "./work-package-extended.hal";
+
+export {
+  representRole,
+  representRoleWithPermissions,
+  representRoleCollection,
+} from "./role.hal";
+
+export {
+  representVersion,
+  representVersionCollection,
+  representProjectVersions,
+} from "./version.hal";

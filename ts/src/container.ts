@@ -9,6 +9,8 @@ import {
   createNotificationRepository,
   createReferenceDataRepository,
   createWorkPackageExtendedRepository,
+  createRoleRepository,
+  createVersionRepository,
 } from "./repositories";
 
 import { createAuthService } from "./services/auth";
@@ -33,6 +35,17 @@ export const notificationService = createNotificationService(notificationRepo);
 // Reference data (read-only) — exposed directly as repository
 export const referenceDataRepository = referenceDataRepo;
 
+// User repository — exposed for /api/v3/users endpoints
+export const userRepository = userRepo;
+
 // Work package extended (relations, watchers, activities)
 const workPackageExtendedRepo = createWorkPackageExtendedRepository();
 export const workPackageExtendedRepository = workPackageExtendedRepo;
+
+// Role repository — exposed for /api/v3/roles endpoints
+const roleRepo = createRoleRepository();
+export const roleRepository = roleRepo;
+
+// Version repository — exposed for /api/v3/versions endpoints
+const versionRepo = createVersionRepository();
+export const versionRepository = versionRepo;

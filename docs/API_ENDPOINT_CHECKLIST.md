@@ -93,16 +93,16 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/users` | List users |
+| [x] | GET | `/api/v3/users` | List users |
 | [ ] | POST | `/api/v3/users` | Create user |
-| [ ] | GET | `/api/v3/users/:id` | Get user |
-| [ ] | PATCH | `/api/v3/users/:id` | Update user |
+| [x] | GET | `/api/v3/users/:id` | Get user |
+| [x] | PATCH | `/api/v3/users/:id` | Update user |
 | [ ] | DELETE | `/api/v3/users/:id` | Delete user |
-| [ ] | POST | `/api/v3/users/:id/lock` | Lock user |
-| [ ] | DELETE | `/api/v3/users/:id/lock` | Unlock user |
+| [x] | POST | `/api/v3/users/:id/lock` | Lock user |
+| [x] | DELETE | `/api/v3/users/:id/lock` | Unlock user |
 | [ ] | GET | `/api/v3/users/:id/form` | User form |
 | [ ] | GET | `/api/v3/users/schema` | User schema |
-| [ ] | GET | `/api/v3/users/me` | Current user (alias) |
+| [x] | GET | `/api/v3/users/me` | Current user (alias) |
 
 ---
 
@@ -148,8 +148,8 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/roles` | List roles |
-| [ ] | GET | `/api/v3/roles/:id` | Get role |
+| [x] | GET | `/api/v3/roles` | List roles |
+| [x] | GET | `/api/v3/roles/:id` | Get role |
 
 ---
 
@@ -184,11 +184,11 @@
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/api/v3/versions` | List versions |
-| [ ] | POST | `/api/v3/versions` | Create version |
-| [ ] | GET | `/api/v3/versions/:id` | Get version |
-| [ ] | PATCH | `/api/v3/versions/:id` | Update version |
-| [ ] | DELETE | `/api/v3/versions/:id` | Delete version |
+| [x] | GET | `/api/v3/versions` | List versions |
+| [x] | POST | `/api/v3/versions` | Create version |
+| [x] | GET | `/api/v3/versions/:id` | Get version |
+| [x] | PATCH | `/api/v3/versions/:id` | Update version |
+| [x] | DELETE | `/api/v3/versions/:id` | Delete version |
 | [ ] | GET | `/api/v3/versions/:id/projects` | Version projects |
 
 ---
@@ -483,10 +483,12 @@
 | Auth | 4 | 7 | 57% |
 | Work Packages | 13 | 24 | 54% |
 | Projects | 5 | 20 | 25% |
-| Users | 0 | 12 | 0% |
+| Users | 6 | 10 | 60% |
 | Groups | 0 | 5 | 0% |
 | Memberships | 3 | 11 | 27% |
+| Roles | 2 | 2 | 100% |
 | Reference Data (Types, Statuses, Priorities) | 6 | 8 | 75% |
+| Versions | 5 | 6 | 83% |
 | Relations | 2 | 5 | 40% |
 | Activities | 1 | 3 | 33% |
 | Queries | 0 | 13 | 0% |
@@ -495,7 +497,7 @@
 | Notifications | 3 | 6 | 50% |
 | Content (Wiki, News, etc.) | 0 | 20+ | 0% |
 | Enterprise | 0 | 15+ | 0% |
-| **TOTAL** | **~37** | **~150+** | **~25%** |
+| **TOTAL** | **~50** | **~150+** | **~33%** |
 
 ---
 
